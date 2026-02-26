@@ -1,3 +1,4 @@
+--!strict
 local module = {}
 
 local RunService = game:GetService("RunService")
@@ -27,7 +28,7 @@ function module.PlayAnimation(
 		animations[frame]:Stop()
 	end
 
-	local image = frame:FindFirstChild("Image")
+	local image = frame:FindFirstChild("Image") :: ImageLabel
 	if not image then
 		return
 	end
@@ -39,11 +40,11 @@ function module.PlayAnimation(
 	local x = 0
 	local y = 0
 
-	local frames = image:GetAttribute("Frames") or image.Size.X.Scale * image.Size.Y.Scale
-	local currentFrames = image:GetAttribute("Frames") or image.Size.X.Scale * image.Size.Y.Scale
+	local frames = (image:GetAttribute("Frames") or image.Size.X.Scale * image.Size.Y.Scale) :: number
+	local currentFrames = frames
 	local currentFrame = 0
 	local paused = false
-local framesToHit = {}
+	local framesToHit = {}
 
 	local onEndedInstance = Instance.new("BindableEvent")
 	local onSteppedInstance = Instance.new("BindableEvent")
@@ -109,10 +110,10 @@ local framesToHit = {}
 			image.Position = UDim2.fromScale(-x, -y)
 
 			for _, v in ipairs(framesToHit) do
-				if currentFrame ~= v[1] then
+				if currentFrame ~= v.Frame then
 					continue
 				end
-				v[2]:Fire(currentFrame, image.Position)
+				v.Signal:Fire(currentFrame, image.Position)
 			end
 
 			lastFrameStep = os.clock()
@@ -128,7 +129,7 @@ local framesToHit = {}
 			table.insert(frameReachedSignals, onFrameReachedInstance)
 
 			local reachedSignal = onFrameReachedInstance
-			table.insert(framesToHit, { Frame, reachedSignal })
+			table.insert(framesToHit, { Frame = Frame, Signal = reachedSignal })
 
 			return reachedSignal.Event
 		end,
@@ -194,4 +195,4 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
-return modul
+return module
